@@ -1,0 +1,16 @@
+Flask Setup
+ 
+1. Fork Repo
+ 
+2. Clone repo 
+
+cd MyReads
+
+virtualenv MyReads
+
+source MyReads/bin/activate
+
+pip install -r requirements
+
+
+https://opensource.com/article/19/7/create-pull-request-github
