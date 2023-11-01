@@ -1,0 +1,34 @@
+{% extends 'base.html'  %}
+
+{% block title %} Register user {% endblock %}
+
+{% block content %}
+<!-- For WTForms - registration form -->
+<div class="container col-sm-12 col-lg-5 justify-content-center pt-5">
+    <h3 class="display-4 text-light">Registration</h3>
+    <p class="lead text-light">Already have an account? <a href="/login" class="text-primary">Login</a> instead</p>
+    <form method="POST">
+    <!-- For CSRF token -->
+    {{ form.hidden_tag() }}
+
+    
+            {% for field in form
+                if field.widget.input_type != 'hidden' %}
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon3">{{ field.label }}</span>
+                </div>
+                <!-- Giving a class of form-control for Boostrap -->
+                {{ field(class_="form-control") }}
+            </div> 
+                <!-- Displaying all the errors below the field -->
+                {% for error in field.errors %}
+                <span class="form-text text-danger">{{ error }}</span>
+                {% endfor %}
+            </p>
+            {% endfor %}
+    <button class="btn btn-primary w-100" type="submit">Register</button>
+    </form>
+
+</div>
+{% endblock %}
