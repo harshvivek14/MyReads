@@ -3,12 +3,10 @@ from models import db, connect_db, User
 from forms import RegisterForm, LoginForm
 import requests
 from sqlalchemy.exc import IntegrityError ### for handling SQLA issues within WTForms
-from secrets import API_KEY
+from key import API_KEY
 
-print('API_KEY')
-print(API_KEY)
 # mapping the base URL of the API into a variable
-BASE_URL = "https://"
+BASE_URL = "https://www.googleapis.com/books/"
 
 app = Flask(__name__)
 
@@ -45,7 +43,7 @@ def add_user_to_g():
 def do_login(user):
     """Log in user."""
     # Settings the curr_user cookie variable as the id of the user. user is passed into this method.
-    session["curr_user"] = user.username
+    session["curr_user"] = user.id
 
 def do_logout():
     """Logout user."""
@@ -165,12 +163,12 @@ def show_search_results(q, page):
 
     # sending a GET request to the URL with the query passed to this method. then mapping the results into a variable
     # passing the page number to make sure we are displaying the search results for correct page number
-    results = requests.get(f"{BASE_URL}search/movie",params={"api_key": API_KEY, "query": q, "page": page})
+    results = requests.get(f"{BASE_URL}v1/volumes", params={"key": API_KEY, "q": q, "page": page})
     
     # Using try/except to catch any errors that might occur while sending a request to API. Such as sending empty string, space, multiple spaces, unsupported character, etc.
     try:
         # rendering a template and passing the json version of the result
-        return render_template('movie/search_results.html', results = results.json()['results'], genres = GENRES_LIST, search_term=q, page = page)
+        return render_template('book/search_results.html', results = results.json(), search_term=q, page = page)
     # if an exception is generated
     except Exception as e:
         # Flash an error
@@ -183,4 +181,6 @@ def show_search_results(q, page):
 if __name__ == '__main__':
     # run() method of Flask class runs the application
     # on the local development server.
+    app.config['ENV'] = 'development'
+    app.config['DEBUG'] = True
     app.run()
