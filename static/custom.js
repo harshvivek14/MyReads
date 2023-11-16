@@ -69,7 +69,6 @@ async function unshare_readlist(rlist_id) {
     })
 }
 
-
 // SEARCH LOGIC
 // mapping the DOM element to a variable
 search_form = document.getElementById('search-form')
@@ -81,5 +80,5 @@ search_form.addEventListener('submit', function(e){
     // mapping the DOM element to a variable
     search_form_input = document.getElementById('search-form-input')
     // Redirecting the user to the search page
-    location.href = `/search/${search_form_input.value}/1`;
+    location.href = `/search/${search_form_input.value}`;
 })

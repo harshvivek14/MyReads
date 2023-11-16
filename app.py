@@ -1,4 +1,4 @@
-from flask import Flask, g, render_template, redirect, session, flash
+from flask import Flask, g, render_template, redirect, session, flash, Markup
 from models import db, connect_db, User
 from forms import RegisterForm, LoginForm
 import requests
@@ -153,29 +153,47 @@ def logout_user():
     return redirect('/')
 
 
-@app.route('/search/<string:q>/<int:page>', methods=['GET'])
-def show_search_results(q, page):
+@app.route('/search/<string:q>', methods=['GET'])
+def show_search_results(q):
     """Logic for sending an API request and displaying the JSON response as an HTML. Expects a GET request."""
 
-    # Making sure that a page is passed into the address bar, if not setting the page to 1
-    if page is None:
-        page = 1
-
     # sending a GET request to the URL with the query passed to this method. then mapping the results into a variable
-    # passing the page number to make sure we are displaying the search results for correct page number
-    results = requests.get(f"{BASE_URL}v1/volumes", params={"key": API_KEY, "q": q, "page": page})
+    results = requests.get(f"{BASE_URL}v1/volumes", params={"key": API_KEY, "q": q})
     
     # Using try/except to catch any errors that might occur while sending a request to API. Such as sending empty string, space, multiple spaces, unsupported character, etc.
     try:
         # rendering a template and passing the json version of the result
-        return render_template('book/search_results.html', results = results.json(), search_term=q, page = page)
+        return render_template('book/search_results.html', results = results.json(), search_term=q)
     # if an exception is generated
     except Exception as e:
         # Flash an error
         flash("Search criteria did not return any results. Please try searching again with a different keyword.", "warning")
         # Redirect to homepage
         return redirect('/')
+
+@app.route('/book/<string:id>')
+def show_book_details(id):
+    """For displaying information about the individual book. Not a list. GET request only."""
     
+    # getting the book information from API and storing into variable
+    book = requests.get(f"{BASE_URL}v1/volumes/{id}")
+    print('book')
+    print(book)
+
+    # only pulling read if the user is logged in
+    if "curr_user" in session:
+        # getting read books so we can determine if this book has been marked as watched already
+        read_books = [x.book_id for x in g.user.read_books]
+        book = book.json()
+        des = Markup(dict(book['volumeInfo'])['description'])
+        # rendering a template and passing the json version of the results, also passing the genres and the page number
+        return render_template('book/details.html', book = book, book_read = id in read_books, des = des)
+    
+    # If the user is not logged in, just passing the book info and the genres. Not passing watched books.
+    book = book.json()
+    des = Markup(dict(book['volumeInfo'])['description'])
+    print(des)
+    return render_template('book/details.html', book = book, des = des)
 
 # main driver function
 if __name__ == '__main__':

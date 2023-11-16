@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block title %} {{book['title']}} {% endblock %}
+
+{% block header %} {% endblock %}
+
+{% block content %}
+
+<div class="modal fade" style="backdrop-filter: blur(5px);" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content " style="height: 40rem;">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Add to Readlist</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body mb-3">
+        
+        <!-- Create a new readlist logic -->
+        <a href="/readlist/create" style="text-decoration: none;">
+          <div class="card col-12" style="height: 4rem;">
+            <div class="row g-0">
+              <div class="col-2 mx-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" width="75%" height="95%" style="display:block; margin: 0 auto;" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+                  <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                </svg> 
+              </div>
+              <div class="col-10"><h4 class="h4" style="padding: 1rem 0">Create New Readlist</h4></div>
+          </div>
+        </a>
+
+        <hr style="border: 1px solid grey;">
+
+        <!-- Logic for displaying readlist items. If the readlists are empty, displays an icon and message. -->
+        {% if g.user.readlists is defined and g.user.readlists|length > 0 %}
+          <!-- Does this if there are readlists. Logic for sending the REST requets is handled in JS by Axios. -->
+          {% for readlist in g.user.readlists %}
+          <div class="card mb-2 col-12" text-align: center; id="book-detail-readlist-div">
+            <div class="row g-0" id="{{readlist.id}}">
+              <div class="col-12 p-2" id="book-detail-readlist-item">
+                <h5 class="mb-0">{{readlist.name}}</h5>
+              <!-- Logic for showing that the book is already inside the readlist-->
+              {% for rlist_book in readlist.books %}
+                {% if book['id'] == rlist_book.book_id %}
+                  <p id="book-details-readlist-item-already" class="m-0"><i class="bi bi-check2"></i> The book is already in this readlist</span>
+                {% else %}
+                  
+                {% endif %} 
+                
+              {% endfor %}
+            
+            </div>
+          </div>
+        </div>
+          {% endfor %}  
+        {% else %}
+          <div class="col-12 justify-content-center text-dark mx-auto my-5">
+            <div class="col-3 mx-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" class="bi bi-inbox" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M0 .5A.5.5 0 0 1 .5 0h2a.5.5 0 0 1 0 1h-2A.5.5 0 0 1 0 .5Zm4 0a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1h-10A.5.5 0 0 1 4 .5Zm-4 2A.5.5 0 0 1 .5 2h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5Zm4 0a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5Zm-4 2A.5.5 0 0 1 .5 4h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5Zm4 0a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5Zm-4 2A.5.5 0 0 1 .5 6h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5Zm4 0a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5Zm-4 2A.5.5 0 0 1 .5 8h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5Zm4 0a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5Zm-4 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5Zm4 0a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1h-10a.5.5 0 0 1-.5-.5Zm-4 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5Zm4 0a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5Zm-4 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5Zm4 0a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5Z"/>
+                </svg>
+            </div>
+            <div class="col-12 mx-auto text-center mt-4">
+                <h4 class="h4">No readlists found.</h4>
+                <h4 class="h4">Please create a readlist first.</h4>
+            </div>
+            
+        </div>
+        {% endif %}
+
+      </div>
+        
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="row p-4" > 
+    <div class="col-sm-12 col-lg-3">
+      <a href="/book/{{book['id']}}">
+      <div id="book-details-poster-div">
+        
+        <img src="
+        {% if book.volumeInfo.imageLinks.large %}
+        {{book.volumeInfo.imageLinks.large}}
+        {% elif book.volumeInfo.imageLinks.medium %}
+        {{book.volumeInfo.imageLinks.medium}}
+        {% elif book.volumeInfo.imageLinks.thumbnail %}
+        {{book.volumeInfo.imageLinks.thumbnail}}
+        {% elif book.volumeInfo.imageLinks.smallThumbnail %}
+        {{book.volumeInfo.imageLinks.smallThumbnail}}
+        {% else %}
+        /static/no_poster.png
+        {% endif %}
+        " class="img-thumbnail" id="book-details-poster-img" alt="book poster">       
+      </div>
+      </a>
+    </div>
+
+    <div class="col-sm-12 col-lg-9 text-light" id="book-details-top-details">
+      <h5 class="display-5">{{book.volumeInfo.title}}</h5>
+      <hr>
+    
+      <!-- Only showing marking as read and readlist options if the user is logged in -->
+      {% if g.user %}
+        <!-- Logic for the mark as read / unread. Shows as unread if the book is already marked read -->
+        <button class="btn btn-outline-light" id="btn_read_unread">
+          <!-- lOGIC IF THE book IS ALREADY read. DISPLAYS DIFFERENT BUTTONS -->
+          {% if book_read == True %}  
+            <i class="bi bi-bookmark-dash-fill"></i> Mark not read</button>
+          {% else %}
+            <i class="bi bi-bookmark-plus"></i></i> Mark as read</button>
+          {% endif %}
+
+        <!-- Logic for adding the item to a readlist. Button logic only. The modal logic is at the top -->
+        <button class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="bi bi-list-check"></i> Add to readlist</button>
+
+        <hr>
+      {% endif %}
+    
+      
+      <!-- DETAILS -->
+      <p><strong>Google Book ID: </strong><span id="book_id">{{book['id']}}</span></p>
+      
+      <p class="text-light"><strong>Auther:</strong>
+        {% if (book.volumeInfo.authors).length == 1 %}
+          {{book.volumeInfo.authors[0]}} 
+        {% else %}
+        {% for i in (book.volumeInfo.authors)[:-1] %}
+          {{i}}, 
+        {% endfor %}
+        {{book.volumeInfo.authors[-1]}}.
+        {% endif %}
+
+      </p>
+      <p><strong>Publisher: </strong>
+        {{book.volumeInfo.publisher}}
+      </p>
+      <p><strong>Published in: </strong>{{book.volumeInfo.publishedDate}}</p>
+
+      <p><strong>Pages: </strong>{{ book.volumeInfo.pageCount }}</p>
+
+      <p><strong>Pre-view: </strong><a href="{{book.volumeInfo.previewLink}}" target="_blank" class="text-light text-decoration-none">{{book.volumeInfo.previewLink}}</a></p>
+
+      <p><strong>Overview: </strong>{{ des }}</p>
+
+    
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+{% endblock %}

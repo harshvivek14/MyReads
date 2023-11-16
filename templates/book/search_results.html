@@ -8,32 +8,37 @@
 <div class="container-fluid" id="book-list">
 <div class="row row-cols-2 justify-content-center mt-2" style="--bs-gutter-x:0; ">
        
-        {% for book in results['items'] %}
-        
-        <div class="col m-1 card bg-black text-light border-dark" style="width: 13rem;">
-            <a href="/book/{{ book['id'] }}" style="text-decoration:none; color:white;">
-                <img class="card-img-top img-fluid" src="
-                {% if book.volumeInfo.imageLinks.thumbnail %}
-                {{book.volumeInfo.imageLinks.thumbnail}}
-                {% else %}
-                /static/no_poster.png
-                {% endif %}
-                " alt="Book poster">
-                <div class="card-body">
-                    <h6 class="card-title">{{book.volumeInfo.title}}</h5>
-                  <p class="card-text"><small class="text-muted align-text-bottom"><strong>Published:</strong> {{book.volumeInfo.publishedDate}}</small>
-                  
-                  <small class="text-muted align-text-bottom"><strong>Authers:</strong>
-                  {% for a in book.volumeInfo.authors %}
-                  {{a}}
-                    {% endfor %}
+    {% for book in results['items'] %}
+    
+    <div class="col m-1 card bg-black text-light border-dark" style="width: 13rem;">
+        <a href="/book/{{ book['id'] }}" style="text-decoration:none; color:white;">
+            <img class="card-img-top img-fluid" src="
+            {% if book.volumeInfo.imageLinks.large %}
+            {{book.volumeInfo.imageLinks.large}}
+            {% elif book.volumeInfo.imageLinks.medium %}
+            {{book.volumeInfo.imageLinks.medium}}
+            {% elif book.volumeInfo.imageLinks.thumbnail %}
+            {{book.volumeInfo.imageLinks.thumbnail}}
+            {% elif book.volumeInfo.imageLinks.smallThumbnail %}
+            {{book.volumeInfo.imageLinks.smallThumbnail}}
+            {% endif %}
+            " alt="Book poster">
+            <div class="card-body">
+                <h6 class="card-title">{{book.volumeInfo.title}}</h5>
+                <p class="card-text"><small class="text-muted align-text-bottom"><strong>
+                    Published:</strong> {{book.volumeInfo.publishedDate}}</small>
+                
+                    <small class="text-muted align-text-bottom"><strong>Authers:</strong>
+                        {% for a in book.volumeInfo.authors %}
+                            {{a}}
+                        {% endfor %}
 
-                </small></p>
-                  
-                </div>
-            </a>
-        </div>
-        {% endfor %}
+                    </small>
+                </p>
+            </div>
+        </a>
+    </div>
+    {% endfor %}
 
 
     </div>
