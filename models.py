@@ -3,7 +3,7 @@ from flask_bcrypt import Bcrypt
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
-
+print('db', db)
 # Connecting to the database in app
 def connect_db(app):
     db.app = app
@@ -15,10 +15,10 @@ class User(db.Model):
     __tablename__ = 'user'
 
     # Table columns
-    # id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     first_name = db.Column(db.String(35), nullable=False)
     last_name = db.Column(db.String(35), nullable=False)
-    username = db.Column(db.String(15), nullable=False, unique=True, primary_key=True)
+    username = db.Column(db.String(15), nullable=False, unique=True)
     password = db.Column(db.Text, nullable=False)
 
     @classmethod
@@ -34,3 +34,53 @@ class User(db.Model):
             return u
         else:
             return False
+        
+class Readlist(db.Model):
+    __tablename__ = 'readlist'
+
+    # Columns
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    name = db.Column(db.String(40), nullable=False)
+    author = db.Column(db.Integer, db.ForeignKey('user.id')) # FK on table user column id
+
+    # Relationships
+    books = db.relationship('Readlist_Books', cascade='all, delete')
+
+class Shared_Readlist(db.Model):
+    """Data model for shared readlists"""
+    # Table name
+    __tablename__ = 'shared_readlist'
+
+    # Columns
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    readlist_id = db.Column(db.Integer, db.ForeignKey('readlist.id', ondelete="CASCADE")) # FK on table readlist column id
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete="CASCADE")) # FK on table user column id
+    # URL code must be unique because we don't want 2 readlist to have same URL
+    url_code = db.Column(db.String(20), nullable=False, unique=True)
+
+    # Relationships
+    readlist = db.relationship('Readlist')
+
+class Readlist_Books(db.Model):
+    """Data model for readlist to book mapping"""
+    # Table name
+    __tablename__= 'readlist_books'
+
+    # Columns
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    readlist_id = db.Column(db.Integer, db.ForeignKey('readlist.id', ondelete="CASCADE")) # FK on table readlist column id
+    book_id = db.Column(db.Integer, nullable=False)
+
+class Read_Books(db.Model):
+    """Data model for marking books as read"""
+    # Table Name
+    __tablename__ = 'read_books'
+
+    # Columns
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id')) # FK on table user column id
+    book_id = db.Column(db.Integer, nullable=False)
+
+    # Relationships
+    user = db.relationship('User', backref="read_books")
+    
