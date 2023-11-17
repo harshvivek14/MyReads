@@ -69,7 +69,7 @@ class Readlist_Books(db.Model):
     # Columns
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     readlist_id = db.Column(db.Integer, db.ForeignKey('readlist.id', ondelete="CASCADE")) # FK on table readlist column id
-    book_id = db.Column(db.Integer, nullable=False)
+    book_id = db.Column(db.String(20), nullable=False)
 
 class Read_Books(db.Model):
     """Data model for marking books as read"""
@@ -79,7 +79,7 @@ class Read_Books(db.Model):
     # Columns
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id')) # FK on table user column id
-    book_id = db.Column(db.Integer, nullable=False)
+    book_id = db.Column(db.String(20), nullable=False)
 
     # Relationships
     user = db.relationship('User', backref="read_books")

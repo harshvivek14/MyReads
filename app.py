@@ -1,5 +1,5 @@
-from flask import Flask, g, render_template, redirect, session, flash, Markup
-from models import db, connect_db, User
+from flask import Flask, g, render_template, redirect, session, flash, Markup, request
+from models import Read_Books, db, connect_db, User
 from forms import RegisterForm, LoginForm
 import requests
 from sqlalchemy.exc import IntegrityError ### for handling SQLA issues within WTForms
@@ -177,8 +177,6 @@ def show_book_details(id):
     
     # getting the book information from API and storing into variable
     book = requests.get(f"{BASE_URL}v1/volumes/{id}")
-    print('book')
-    print(book)
 
     # only pulling read if the user is logged in
     if "curr_user" in session:
@@ -194,6 +192,48 @@ def show_book_details(id):
     des = Markup(dict(book['volumeInfo'])['description'])
     print(des)
     return render_template('book/details.html', book = book, des = des)
+
+# logic for marking as read or unread
+@app.route('/read_unread', methods=['PATCH'])
+def mark_umark_watched():
+    if "curr_user" not in session:
+        flash("Please login first!", "danger")
+        return redirect('/login')
+    r_id = request.json['book_id']
+    # Getting a operation from the payload sent to our API logic
+    operation = request.json['oper']
+    
+    # for read operation
+    if operation == "r": 
+        # Creating a new instance of the Read_books
+        r = Read_Books(user_id=g.user.id, book_id=r_id)
+        db.session.add(r)
+        db.session.commit()
+        return "Successfully marked as read."
+
+    # If the operation is unread,
+    elif operation == "u":
+        for i in g.user.read_books:
+            if i.book_id == r_id:
+                ur = Read_Books.query.get_or_404(i.id)
+                db.session.delete(ur)
+                db.session.commit()
+                return "Successfully marked as not read."
+    else:
+        return "Error! Server could not understand your request."
+    
+@app.route('/readlist/read')
+def show_readlist_read():
+    if "curr_user" not in session:
+        flash("Please login first!", "danger")
+        return redirect('/login')
+
+    read_book_ids = [x.book_id for x in g.user.read_books]
+    read_books = []
+    for id in read_book_ids:
+        read_books.append(requests.get(f"{BASE_URL}v1/volumes/{id}"))
+    
+    return render_template('/readlist/read.html', read_books=read_books)
 
 # main driver function
 if __name__ == '__main__':

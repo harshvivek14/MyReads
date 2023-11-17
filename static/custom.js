@@ -3,7 +3,7 @@ async function mark_read(id) {
     // Sending a patch request using axios and passing the book id
     res = await axios.patch("/read_unread", {
         book_id: id,
-        oper: 'w'
+        oper: 'r'
     })
 }
 
@@ -82,3 +82,47 @@ search_form.addEventListener('submit', function(e){
     // Redirecting the user to the search page
     location.href = `/search/${search_form_input.value}`;
 })
+
+// Book Read/Unread
+if (window.location.href.indexOf("book/") > -1) {
+    // mapping the DOM element to a variable
+    btn_read_unread = document.getElementById('btn_read_unread')
+    // only running this logic if we are on the correct page (if we get a result from our getelementbyid)
+    if (btn_read_unread !== null) {
+        // adding on event listener for click
+        btn_read_unread.addEventListener('click', function (e) {
+            e.preventDefault()
+            if (btn_read_unread.innerText === " Mark as read") {
+                book_id = document.getElementById('book_id').innerText
+                console.log(book_id)
+                mark_read(book_id)
+                btn_read_unread.innerHTML = '<i class="bi bi-bookmark-dash-fill"></i> Mark not read'
+            } else if (btn_read_unread.innerText === " Mark not read") {
+                book_id = document.getElementById('book_id').innerText
+                mark_read(book_id)
+                btn_read_unread.innerHTML = '<i class="bi bi-bookmark-plus"></i></i> Mark as read</button>'
+            } else {
+                console.log('Error. Could not mark the book as read/unread.')
+            }
+        })
+    }
+}
+
+
+if (window.location.href.indexOf("readlist/read") > -1) {
+    btn_readlist_read_remove = document.querySelectorAll('#readlist-read-remove-button')
+    if (btn_readlist_read_remove !== null) {
+        for (let i of btn_readlist_read_remove) {
+            i.addEventListener('click', function (e) {
+                e.preventDefault()
+                if (i.innerHTML === '<i class="bi bi-trash3"></i> Remove') {
+                    i.innerHTML = "Are you sure?"
+                } else {
+                    book_id = i.parentElement.getAttribute('id')
+                    mark_unread(book_id)
+                    i.parentElement.parentElement.parentElement.remove()
+                }
+            })
+        }
+    }
+}

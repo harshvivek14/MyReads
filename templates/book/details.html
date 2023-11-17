@@ -5,6 +5,7 @@
 {% block header %} {% endblock %}
 
 {% block content %}
+<script type="text/javascript" src="{{ url_for('static', filename='custom.js') }}"></script>
 
 <div class="modal fade" style="backdrop-filter: blur(5px);" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
