@@ -1,0 +1,44 @@
+CREATE TABLE "user" (
+	id SERIAL NOT NULL, 
+	first_name VARCHAR(35) NOT NULL, 
+	last_name VARCHAR(35) NOT NULL, 
+	username VARCHAR(15) NOT NULL, 
+	password TEXT NOT NULL, 
+	PRIMARY KEY (id), 
+	UNIQUE (username)
+)
+
+CREATE TABLE readlist (
+	id SERIAL NOT NULL, 
+	name VARCHAR(40) NOT NULL, 
+	author INTEGER, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(author) REFERENCES "user" (id)
+)
+
+CREATE TABLE read_books (
+	id SERIAL NOT NULL, 
+	user_id INTEGER, 
+	book_id INTEGER NOT NULL, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(user_id) REFERENCES "user" (id)
+)
+
+CREATE TABLE shared_readlist (
+	id SERIAL NOT NULL, 
+	readlist_id INTEGER, 
+	user_id INTEGER, 
+	url_code VARCHAR(20) NOT NULL, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(readlist_id) REFERENCES readlist (id) ON DELETE CASCADE, 
+	FOREIGN KEY(user_id) REFERENCES "user" (id) ON DELETE CASCADE, 
+	UNIQUE (url_code)
+)
+
+CREATE TABLE readlist_books (
+	id SERIAL NOT NULL, 
+	readlist_id INTEGER, 
+	book_id INTEGER NOT NULL, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(readlist_id) REFERENCES readlist (id) ON DELETE CASCADE
+)
