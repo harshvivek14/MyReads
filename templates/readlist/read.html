@@ -24,17 +24,19 @@
                     {{book.json().volumeInfo.imageLinks.thumbnail}}
                     {% elif book.json().volumeInfo.imageLinks.smallThumbnail %}
                     {{book.json().volumeInfo.imageLinks.smallThumbnail}}
-                    {%endif%}" class="img-fluid rounded-start" style="max-height: 20rem;">
+                    {% endif %}" class="img-fluid rounded-start" style="max-height: 20rem;">
                 </a>
             </div>
             <div class="col-lg-8 col-sm-8" >
                 <div class="card-body">
                     <h5 class="card-title">{{book.json().volumeInfo.title}}</h5>
-                    <p class="card-text">{{book.json().volumeInfo.publisher}}</p>
+                    <p class="card-text">Publisher:{{book.json().volumeInfo.publisher}}</p>
+                    <p class="card-text" id="book-id">ID: {{book.json().id}}</p>
+
                 </div>
             </div>
             <div class="col-lg-2 col-sm-12" id="{{book.id}}">
-                <button id="readlist-read-remove-button" class="btn btn-lg btn-danger float-end"><i class="bi bi-trash3"></i> Remove</button>
+                <button id="readlist-read-remove-button" class="btn btn-lg btn-danger float-end">Remove</button>
             </div>
         </div>
         </div>

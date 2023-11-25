@@ -213,6 +213,7 @@ def mark_umark_watched():
 
     # If the operation is unread,
     elif operation == "u":
+        r_id = request.json['book_id']
         for i in g.user.read_books:
             if i.book_id == r_id:
                 ur = Read_Books.query.get_or_404(i.id)
@@ -231,8 +232,8 @@ def show_readlist_read():
     read_book_ids = [x.book_id for x in g.user.read_books]
     read_books = []
     for id in read_book_ids:
-        read_books.append(requests.get(f"{BASE_URL}v1/volumes/{id}"))
-    
+        res = requests.get(f"{BASE_URL}v1/volumes/{id}")
+        read_books.append(res)
     return render_template('/readlist/read.html', read_books=read_books)
 
 # main driver function
@@ -241,4 +242,4 @@ if __name__ == '__main__':
     # on the local development server.
     app.config['ENV'] = 'development'
     app.config['DEBUG'] = True
-    app.run()
+    app.run(debug=True)
