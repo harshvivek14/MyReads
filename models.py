@@ -21,6 +21,11 @@ class User(db.Model):
     username = db.Column(db.String(15), nullable=False, unique=True)
     password = db.Column(db.Text, nullable=False)
 
+
+    # Relationships
+    readlists = db.relationship('Readlist', backref="user_id_obj")
+    shared_readlists = db.relationship('Shared_Readlist')
+
     @classmethod
     def register(cls, fname, lname, uname, pwd):
         hashed = bcrypt.generate_password_hash(pwd)
@@ -41,7 +46,7 @@ class Readlist(db.Model):
     # Columns
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     name = db.Column(db.String(40), nullable=False)
-    author = db.Column(db.Integer, db.ForeignKey('user.id')) # FK on table user column id
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id')) # FK on table user column id
 
     # Relationships
     books = db.relationship('Readlist_Books', cascade='all, delete')

@@ -94,7 +94,6 @@ if (window.location.href.indexOf("book/") > -1) {
             e.preventDefault()
             if (btn_read_unread.innerText === " Mark as read") {
                 book_id = document.getElementById('book_id').innerText
-                console.log(book_id)
                 mark_read(book_id)
                 btn_read_unread.innerHTML = '<i class="bi bi-bookmark-dash-fill"></i> Mark not read'
             } else if (btn_read_unread.innerText === " Mark not read") {
@@ -106,8 +105,94 @@ if (window.location.href.indexOf("book/") > -1) {
             }
         })
     }
+    
+    book_detail_readlist_item = document.querySelectorAll("#book-detail-readlist-item")
+    book_id = document.getElementById('book_id').innerText
+    if (book_detail_readlist_item !== null && book_id !== null) {
+        // since the querySelectAll returns a list, running the following for each item
+        for (let i of book_detail_readlist_item) {
+            if (i.children[1]) {
+                i.style.setProperty('background-color', 'limegreen')
+            // If the book is not in the readlist yet, do this
+            } else {
+                i.addEventListener('click', function (e) {
+                    e.preventDefault()
+                    readlist_id = i.parentElement.getAttribute('id')
+                    add_to_readlist(book_id, readlist_id)
+                    console.log(book_id, readlist_id)
+                    i.innerHTML = '<h5 class="mb-0"><i class="bi bi-check2"></i> Added to readlist</h5>'
+                    i.style.setProperty('background-color', 'limegreen')
+                })
+            }
+        }
+    }
 }
 
+
+if (window.location.href.indexOf("readlist/private") > -1) {
+    readlist_private_remove_button = document.querySelectorAll('#readlist-private-remove-button')
+    if (readlist_private_remove_button !== null) {
+        for (let i of readlist_private_remove_button) {
+            i.addEventListener('click', function (e) {
+                e.preventDefault()
+                // if the button says Remove, make sure we display Are you sure to confirm
+                if (i.innerHTML === 'Remove') {
+                    i.innerHTML = "Are you sure?"
+                } else {
+                    // getting the id attribute of the parent which is a readlist id
+                    readlist_id = i.parentElement.getAttribute('id')
+                    console.log(readlist_id)
+                    // calling the custom method and passing the readlist id
+                    delete_readlist(readlist_id)
+                    // removing the div that we clicked on
+                    i.parentElement.parentElement.parentElement.remove()
+                }
+            })
+        }
+    }
+
+    readlist_private_share_button = document.querySelectorAll('#readlist-private-share-button')
+    if (readlist_private_share_button !== null) { 
+        for (let i of readlist_private_share_button) { 
+            i.addEventListener('click', function (e) { 
+                e.preventDefault()
+                readlist_id = i.parentElement.getAttribute('id')
+
+                if(i.getAttribute('url')) {
+                    // if the readlist already has a shared url, don't send axios reqest, just redirect
+                    let url = i.getAttribute('url')
+                    location.href = `/readlist/shared/${url}`;
+                } else {
+                    // if the readlist does not have a url yet, send an axios PUT request
+                    let u = share_readlist(readlist_id)
+                    u.then(data => {location.href = `/readlist/shared/${data}`;})
+                }
+            })
+        }
+    }
+
+    readlist_private_details_remove_button = document.querySelectorAll('#readlist-private-details-remove-button')
+    if (readlist_private_details_remove_button !== null) {
+        for (let i of readlist_private_details_remove_button) {
+            i.addEventListener('click', function (e) {
+                e.preventDefault()
+                // if the button says Remove, make sure we display Are you sure to confirm
+                if (i.innerHTML === 'Remove') {
+                    i.innerHTML = "Are you sure?"
+                // If the button does not say that, do the following. Example is second click after Are you sure?. 
+                } else {
+                    // getting the id attribute of the parent which is a book id
+                    book_id = i.parentElement.getAttribute('book_id')
+                    rlist_id = i.parentElement.getAttribute('rlist_id')
+                    // calling the custom method and passing the book id and readlist id
+                    remove_from_readlist(book_id, rlist_id)
+                    // removing the div that we clicked on
+                    i.parentElement.parentElement.parentElement.remove()
+                }
+            })
+        }
+    }
+}
 
 if (window.location.href.indexOf("readlist/read") > -1) {
     btn_readlist_read_remove = document.querySelectorAll('#readlist-read-remove-button')
@@ -119,8 +204,6 @@ if (window.location.href.indexOf("readlist/read") > -1) {
                     i.innerHTML = "Are you sure?"
                 } else {
                     book_id = document.getElementById('book-id').innerText
-                    console.log(book_id)
-                    console.log(book_id.substring(4))
                     mark_unread(book_id.substring(4))
                     i.parentElement.parentElement.parentElement.remove()
                 }

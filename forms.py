@@ -13,3 +13,7 @@ class RegisterForm(FlaskForm):
 class LoginForm(FlaskForm):
     username = StringField("Username", validators=[InputRequired(), Length(max=15)])
     password = PasswordField("Password", validators=[InputRequired()])
+
+# Create a new readlist form
+class CreateNewReadlistForm(FlaskForm):
+    name = StringField("Readlist Name", validators=[InputRequired(), Length(max=40)])

@@ -1,6 +1,6 @@
 from flask import Flask, g, render_template, redirect, session, flash, Markup, request
-from models import Read_Books, db, connect_db, User
-from forms import RegisterForm, LoginForm
+from models import Read_Books, db, connect_db, User, Readlist, Readlist_Books, Shared_Readlist
+from forms import RegisterForm, LoginForm, CreateNewReadlistForm
 import requests
 from sqlalchemy.exc import IntegrityError ### for handling SQLA issues within WTForms
 from key import API_KEY
@@ -190,7 +190,6 @@ def show_book_details(id):
     # If the user is not logged in, just passing the book info and the genres. Not passing watched books.
     book = book.json()
     des = Markup(dict(book['volumeInfo'])['description'])
-    print(des)
     return render_template('book/details.html', book = book, des = des)
 
 # logic for marking as read or unread
@@ -235,6 +234,124 @@ def show_readlist_read():
         res = requests.get(f"{BASE_URL}v1/volumes/{id}")
         read_books.append(res)
     return render_template('/readlist/read.html', read_books=read_books)
+
+# Create new readlist logic
+@app.route('/readlist/create', methods=['GET','POST'])
+def create_new_readlist():
+
+    form = CreateNewReadlistForm()
+
+    if "curr_user" not in session:
+        flash("Please login first!", "danger")
+        return redirect('/login')
+
+    if form.validate_on_submit():
+        readlist_name = form.name.data
+        
+        new_readlist = Readlist(name=readlist_name, user_id=g.user.id)
+        db.session.add(new_readlist)
+
+        try:
+            db.session.commit()
+        except IntegrityError:
+            form.username.errors.append('Error. Please try again with different readlist name')
+            return render_template('/readlist/create_new.html', form=form)
+
+        flash('Successfully created new readlist!', "success")
+        return redirect('/readlist/private')
+
+    return render_template('/readlist/create_new.html', form=form)
+
+@app.route('/readlist/delete', methods=['DELETE'])
+def delete_readlist():
+
+    if "curr_user" not in session:
+        flash("Please login first!", "danger")
+        return redirect('/login')
+
+    rlist_id = int(request.json['rlist_id'])
+    plist = Readlist.query.get_or_404(rlist_id)
+
+    if g.user.id != plist.user_id:
+        return "You are not authorized to access this resource!"
+
+    db.session.delete(plist)
+    db.session.commit()
+    return "Successfully deleted a readlist."
+
+@app.route('/readlist/add_remove', methods=['PATCH'])
+def add_book_to_readlist():
+
+    if "curr_user" not in session:
+        flash("Please login first!", "danger")
+        return redirect('/login')
+    
+    book_id = request.json['book_id']
+    rlist_id = request.json['rlist_id']
+
+    pm = Readlist_Books(readlist_id = rlist_id, book_id = book_id)
+    
+    db.session.add(pm)
+    db.session.commit()
+
+    return "Successfully added to readlist."
+
+# Remove book from readlist
+@app.route('/readlist/add_remove', methods=['DELETE'])
+def remove_book_from_readlist():
+
+    if "curr_user" not in session:
+        flash("Please login first!", "danger")
+        return redirect('/login')
+       
+    book_id = request.json['book_id']
+    rlist_id = int(request.json['rlist_id'])
+
+    pm = Readlist_Books.query.filter_by(readlist_id=rlist_id, book_id=book_id).first()
+
+    plist = Readlist.query.get_or_404(rlist_id)
+
+    if g.user.id != plist.user_id:
+        return "You are not authorized to access this resource!"
+    
+    db.session.delete(pm)
+    db.session.commit()
+
+    return "Successfully removed from readlist."
+
+# Show list of private readlists on a page
+@app.route('/readlist/private')
+def show_private_readlists():
+
+    if "curr_user" not in session:
+        flash("Please login first!", "danger")
+        return redirect('/login')
+
+    return render_template('readlist/private_list.html')
+
+# Show details of an individual private readlist
+@app.route('/readlist/private/<int:id>')
+def show_private_readlist_details(id):
+
+    p = Readlist.query.get_or_404(id)
+    
+    if "curr_user" not in session:
+        flash("Please login first!", "danger")
+        return redirect('/login')
+
+    elif g.user.id != p.user_id:
+        flash("You are not authorized to access this resource!", "danger")
+        return redirect('/login')
+
+    p_book_ids = [x.book_id for x in p.books]
+    p_books = []
+
+    for id in p_book_ids:
+        # sending a GET request to the API and getting the book details in JSON format
+        # appending each book details into the list variable
+        p_books.append(requests.get(f"{BASE_URL}v1/volumes/{id}").json())
+
+    return render_template('readlist/private_single.html', readlist = p, readlist_books = p_books)
 
 # main driver function
 if __name__ == '__main__':

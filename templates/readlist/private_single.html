@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %} {{readlist.name}} Details {% endblock %}
+
+{% block header %} {% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="display-4 text-light mt-2 mb-3" style="text-align: center;">{{readlist.name}} Details</h1>
+
+    <!-- Logic for having an empty readlist -->
+    {% if readlist.books is defined and readlist.books|length > 0 %}
+        <!-- If there are books, do this -->
+        {% for book in readlist_books %}
+
+        <div class="card mb-3 mx-auto col-xl-6 col-lg-10 col-md-11 col-sm-12">
+            <div class="row g-0">
+            <div class="col-lg-2 col-sm-4">
+                <a href="/book/{{book.id}}">
+                <img src="https://image.tmdb.org/t/p/w500{{book.poster_path}}" class="img-fluid rounded-start" style="max-height: 20rem;">
+                </a>
+            </div>
+            <div class="col-lg-8 col-sm-8" >
+                <div class="card-body">
+                <h5 class="card-title">{{book.title}}</h5>
+                <p class="card-text">{{book.overview}}</p>
+                <!-- Reserved for later use -->
+                <!-- <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p> -->
+                </div>
+            </div>
+            <div class="col-lg-2 col-sm-12" mov_id="{{book.id}}" plist_id="{{readlist.id}}">
+                <button id="readlist-private-details-remove-button" class="btn btn-lg btn-danger float-end"><i class="bi bi-trash3"></i> Remove</button>
+            </div>
+        </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <!-- If there are no books, do this -->
+        <div class="col-lg-6 col-md-8 col-sm-10 col-xs-12 justify-content-center text-light mx-auto my-5">
+            <div class="col-3 mx-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" class="bi bi-inbox" viewBox="0 0 16 16">
+                    <path d="M4.98 4a.5.5 0 0 0-.39.188L1.54 8H6a.5.5 0 0 1 .5.5 1.5 1.5 0 1 0 3 0A.5.5 0 0 1 10 8h4.46l-3.05-3.812A.5.5 0 0 0 11.02 4H4.98zm9.954 5H10.45a2.5 2.5 0 0 1-4.9 0H1.066l.32 2.562a.5.5 0 0 0 .497.438h12.234a.5.5 0 0 0 .496-.438L14.933 9zM3.809 3.563A1.5 1.5 0 0 1 4.981 3h6.038a1.5 1.5 0 0 1 1.172.563l3.7 4.625a.5.5 0 0 1 .105.374l-.39 3.124A1.5 1.5 0 0 1 14.117 13H1.883a1.5 1.5 0 0 1-1.489-1.314l-.39-3.124a.5.5 0 0 1 .106-.374l3.7-4.625z"/>
+                </svg>
+            </div>
+            <div class="col-12 mx-auto text-center">
+                <h4 class="h4">No books found in this readlist.</h4>
+                <h4 class="h4">Please add some books into this readlist first.</h4>
+            </div>
+            
+        </div>
+    {% endif %}
+   
+</div>
+{% endblock %}
