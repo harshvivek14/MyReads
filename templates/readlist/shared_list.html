@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %} Shared Readlists {% endblock %}
+
+{% block header %} {% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="display-4 text-light mt-2 mb-3" style="text-align: center;">Shared Readlists</h1>
+    
+    <a href="/readlist/private" style="text-decoration: none;">
+    <div class="card mb-3 mx-auto col-xl-6 col-lg-10 col-md-11 col-sm-12" >
+        <div class="row g-0" >
+            <div class="col-lg-1 col-sm-12" style="text-align: center;">
+                <i class="bi bi-share p-2" style="font-size: 2rem;"></i>
+            </div>    
+            <div class="col-lg-11 col-sm-12" >
+                <h4 class="h4" id="readlist-shared-share-more-h4" style="line-height: 2; margin: 0;">Share more</h4>
+            </div>
+        </div>
+    </div>
+    </a>
+    
+    <!-- Only display the readlists if they exist, if not will display an icon and a message -->
+    {% if g.user.shared_readlists %}
+        <!-- Logic for displaying all the readlists using Jinja -->
+        {% for shared in g.user.shared_readlists %}
+        <div class="card mb-3 mx-auto col-xl-6 col-lg-10 col-md-11 col-sm-12">
+            <div class="row g-0">
+                <div class="col-lg-9 col-sm-12" >
+                    <a href="/readlist/private/{{shared.readlist.id}}" style="text-decoration: none;">
+                    <div class="card-body">
+                        <h5 class="card-title mb-0" style="line-height:unset;">{{shared.readlist.name}}</h5>
+                    </div>
+                    </a>
+                </div>
+                <div class="col-lg-3 col-sm-12 " id="{{shared.readlist.id}}">
+                    <button id="readlist-shared-unshare-button" class="btn btn btn-danger float-start w-50 h-100">Un-share</button>
+
+                    <button id="readlist-shared-copy-url-button" class="btn btn btn-info float-end w-50 h-100"
+                    url="{{shared.url_code}}">Copy URL</button>
+
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <!-- If there are no readlists, do this -->
+        <div class="col-12 justify-content-center text-dark mx-auto my-5">
+            <div class="col-3 mx-auto text-light">
+                <svg style="height: 15rem; width: 100%" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-inbox" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M0 .5A.5.5 0 0 1 .5 0h2a.5.5 0 0 1 0 1h-2A.5.5 0 0 1 0 .5Zm4 0a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1h-10A.5.5 0 0 1 4 .5Zm-4 2A.5.5 0 0 1 .5 2h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5Zm4 0a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5Zm-4 2A.5.5 0 0 1 .5 4h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5Zm4 0a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5Zm-4 2A.5.5 0 0 1 .5 6h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5Zm4 0a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5Zm-4 2A.5.5 0 0 1 .5 8h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5Zm4 0a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5Zm-4 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5Zm4 0a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1h-10a.5.5 0 0 1-.5-.5Zm-4 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5Zm4 0a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5Zm-4 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5Zm4 0a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5Z"/>
+                </svg>
+            </div>
+            <div class="col-12 mx-auto text-center mt-4 text-light">
+                <h4 class="h4">No shared readlists found.</h4>
+                <h4 class="h4">Please click on Share more above and share your private readlist(s) first.</h4>
+            </div>
+            
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

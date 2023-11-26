@@ -16,21 +16,14 @@
             <div class="row g-0">
             <div class="col-lg-2 col-sm-4">
                 <a href="/book/{{book.json().id}}">
-                    <img src="{% if book.json().volumeInfo.imageLinks.large %}
-                    {{book.json().volumeInfo.imageLinks.large}}
-                    {% elif book.json().volumeInfo.imageLinks.medium %}
-                    {{book.json().volumeInfo.imageLinks.medium}}
-                    {% elif book.json().volumeInfo.imageLinks.thumbnail %}
-                    {{book.json().volumeInfo.imageLinks.thumbnail}}
-                    {% elif book.json().volumeInfo.imageLinks.smallThumbnail %}
-                    {{book.json().volumeInfo.imageLinks.smallThumbnail}}
-                    {% endif %}" class="img-fluid rounded-start" style="max-height: 20rem;">
+                    <img src="https://books.google.com/books/content?id={{book.json().id}}&printsec=frontcover&img=1&zoom=1" 
+                    class="img-thumbnail" id="book-details-poster-img" alt="book poster">  
                 </a>
             </div>
             <div class="col-lg-8 col-sm-8" >
                 <div class="card-body">
                     <h5 class="card-title">{{book.json().volumeInfo.title}}</h5>
-                    <p class="card-text">Publisher:{{book.json().volumeInfo.publisher}}</p>
+                    <p class="card-text">Publisher: {{book.json().volumeInfo.publisher}}</p>
                     <p class="card-text" id="book-id">ID: {{book.json().id}}</p>
 
                 </div>

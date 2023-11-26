@@ -81,20 +81,8 @@
     <div class="col-sm-12 col-lg-3">
       <a href="/book/{{book['id']}}">
       <div id="book-details-poster-div">
-        
-        <img src="
-        {% if book.volumeInfo.imageLinks.large %}
-        {{book.volumeInfo.imageLinks.large}}
-        {% elif book.volumeInfo.imageLinks.medium %}
-        {{book.volumeInfo.imageLinks.medium}}
-        {% elif book.volumeInfo.imageLinks.thumbnail %}
-        {{book.volumeInfo.imageLinks.thumbnail}}
-        {% elif book.volumeInfo.imageLinks.smallThumbnail %}
-        {{book.volumeInfo.imageLinks.smallThumbnail}}
-        {% else %}
-        /static/no_poster.png
-        {% endif %}
-        " class="img-thumbnail" id="book-details-poster-img" alt="book poster">       
+        <img src="https://books.google.com/books/content?id={{book['id']}}&printsec=frontcover&img=1&zoom=3" 
+        class="img-thumbnail" id="book-details-poster-img" alt="book poster">       
       </div>
       </a>
     </div>
@@ -122,12 +110,12 @@
     
       
       <!-- DETAILS -->
-      <p><strong>Google Book ID: </strong><div id="book_id">{{book['id']}}</div></p>
+      <p><strong>Google Book ID: </strong><span id="book_id">{{book['id']}}</span></p>
       
       <p class="text-light"><strong>Auther:</strong>
-        {% if (book.volumeInfo.authors).length == 1 %}
+        {% if (book.volumeInfo.authors) and (book.volumeInfo.authors).length == 1 %}
           {{book.volumeInfo.authors[0]}} 
-        {% else %}
+        {% elif (book.volumeInfo.authors)  %}
         {% for i in (book.volumeInfo.authors)[:-1] %}
           {{i}}, 
         {% endfor %}

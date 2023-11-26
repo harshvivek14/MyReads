@@ -4,11 +4,14 @@ from forms import RegisterForm, LoginForm, CreateNewReadlistForm
 import requests
 from sqlalchemy.exc import IntegrityError ### for handling SQLA issues within WTForms
 from key import API_KEY
+from string import ascii_letters
+from random import choice
+import urllib.parse
 
 # mapping the base URL of the API into a variable
 BASE_URL = "https://www.googleapis.com/books/"
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static')
 
 # configuring Flask and SQL Alchemy
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@localhost/myreads'
@@ -156,9 +159,9 @@ def logout_user():
 @app.route('/search/<string:q>', methods=['GET'])
 def show_search_results(q):
     """Logic for sending an API request and displaying the JSON response as an HTML. Expects a GET request."""
-
+    q = urllib.parse.quote(q)
     # sending a GET request to the URL with the query passed to this method. then mapping the results into a variable
-    results = requests.get(f"{BASE_URL}v1/volumes", params={"key": API_KEY, "q": q})
+    results = requests.get(f"{BASE_URL}v1/volumes", params={"q": q})
     
     # Using try/except to catch any errors that might occur while sending a request to API. Such as sending empty string, space, multiple spaces, unsupported character, etc.
     try:
@@ -166,6 +169,7 @@ def show_search_results(q):
         return render_template('book/search_results.html', results = results.json(), search_term=q)
     # if an exception is generated
     except Exception as e:
+        print(e)
         # Flash an error
         flash("Search criteria did not return any results. Please try searching again with a different keyword.", "warning")
         # Redirect to homepage
@@ -183,13 +187,17 @@ def show_book_details(id):
         # getting read books so we can determine if this book has been marked as watched already
         read_books = [x.book_id for x in g.user.read_books]
         book = book.json()
-        des = Markup(dict(book['volumeInfo'])['description'])
+        des =[]
+        if 'description' in book['volumeInfo']:
+            des = Markup(dict(book['volumeInfo'])['description'])
         # rendering a template and passing the json version of the results, also passing the genres and the page number
         return render_template('book/details.html', book = book, book_read = id in read_books, des = des)
     
     # If the user is not logged in, just passing the book info and the genres. Not passing watched books.
     book = book.json()
-    des = Markup(dict(book['volumeInfo'])['description'])
+    des =[]
+    if 'description' in book['volumeInfo']:
+        des = Markup(dict(book['volumeInfo'])['description'])
     return render_template('book/details.html', book = book, des = des)
 
 # logic for marking as read or unread
@@ -270,12 +278,12 @@ def delete_readlist():
         return redirect('/login')
 
     rlist_id = int(request.json['rlist_id'])
-    plist = Readlist.query.get_or_404(rlist_id)
+    rlist = Readlist.query.get_or_404(rlist_id)
 
-    if g.user.id != plist.user_id:
+    if g.user.id != rlist.user_id:
         return "You are not authorized to access this resource!"
 
-    db.session.delete(plist)
+    db.session.delete(rlist)
     db.session.commit()
     return "Successfully deleted a readlist."
 
@@ -309,9 +317,9 @@ def remove_book_from_readlist():
 
     pm = Readlist_Books.query.filter_by(readlist_id=rlist_id, book_id=book_id).first()
 
-    plist = Readlist.query.get_or_404(rlist_id)
+    rlist = Readlist.query.get_or_404(rlist_id)
 
-    if g.user.id != plist.user_id:
+    if g.user.id != rlist.user_id:
         return "You are not authorized to access this resource!"
     
     db.session.delete(pm)
@@ -352,6 +360,81 @@ def show_private_readlist_details(id):
         p_books.append(requests.get(f"{BASE_URL}v1/volumes/{id}").json())
 
     return render_template('readlist/private_single.html', readlist = p, readlist_books = p_books)
+
+# Share a private readlist
+@app.route('/readlist/share', methods=['PUT'])
+def share_private_readlist():
+    #Logic for generating a random hash and adding a private readlist into shared readlist table. Expects a PUT request
+    if "curr_user" not in session:
+        flash("Please login first!", "danger")
+        return redirect('/login')
+
+    rlist_id = int(request.json['rlist_id'])
+
+    # Logic for generating a random 10 character url from lowercase and uppercase alphabet    
+    letters = ascii_letters # from string library. will print a-z lowercase and A-Z uppercase letters.
+    url = (''.join(choice(letters) for i in range(10))) # picks a random sequence of 10 chars
+
+    # creating a new instance of the Shared_Readlist object and passing the readlist id, user id and the newly generated URL
+    sp = Shared_Readlist(readlist_id=rlist_id, user_id=g.user.id, url_code=url)
+
+    db.session.add(sp)
+    db.session.commit()
+    
+    return url
+
+# Show a list of shared readlists
+@app.route('/readlist/shared', methods=['GET'])
+def show_shared_readlists():
+    #Logic for displaying all the shared readlists on 1 page. GET request only."""
+
+    if "curr_user" not in session:
+        flash("Please login first!", "danger")
+        return redirect('/login')
+    return render_template('readlist/shared_list.html')
+
+# Logic for un-sharing an already shared readlist
+@app.route('/readlist/shared', methods=['DELETE'])
+def un_share_private_readlist():
+    # deleting a shared readlist. The private readlist itself will stay. Expects a DELETE request.
+
+    if "curr_user" not in session:
+        flash("Please login first!", "danger")
+        return redirect('/login')
+    
+    rlist_id = int(request.json['rlist_id'])
+
+    # finding a first item in the Shared_Readlist object/table that has the correct readlist id
+    p = Shared_Readlist.query.filter_by(readlist_id = rlist_id).first()
+
+    db.session.delete(p)
+    db.session.commit()
+
+    return "Successfully un-shared a shared readlist."
+
+# Show details of a shared private readlist
+@app.route('/readlist/shared/<string:url_code>')
+def show_shared_readlist_details(url_code):
+    """Logic for querying the DB for the URL provide and showing details of a shared readlist.
+    This option is available to everyone. Not only to logged in users.
+    """
+
+    sp = Shared_Readlist.query.filter_by(url_code=url_code).first()
+
+    p = sp.readlist
+
+    # Getting the book ids and putting them into a variable
+    p_book_ids = [x.book_id for x in p.books]
+    p_books = []
+
+    for id in p_book_ids:
+        # querying the API for the book details for each book id in the readlist
+        p_books.append(requests.get(f"{BASE_URL}v1/volumes/{id}", params={"key": API_KEY}).json())
+
+    a = User.query.get_or_404(p.user_id)
+
+    return render_template('readlist/shared_single_ext.html', readlist=p, books=p_books, author=a)
+
 
 # main driver function
 if __name__ == '__main__':

@@ -5,21 +5,21 @@
 {% block nav1 %} active {% endblock %}
 
 {% block content %}
-<div class="container-fluid" id="book-list" style="padding: 0; height: 100%;">
-    <div style="--bs-gutter-x:0; width: 100%;" class="row row-cols-2 justify-content-center mt-2">
+<div class="container-fluid" id="book-list" style="padding: 0; height: 100%; margin-bottom: 100px;">
+    <div style="--bs-gutter-x:0; width: 100%; margin-bottom: 100px" class="row row-cols-2 justify-content-center mt-2">
        
     {% for book in results['items'] %}
     
-    <div class="col m-1 card bg-black text-light border-dark" style="width: 13rem;">
+    <div class="col m-1 card bg-black text-light border-dark" style="width: 13rem; margin-bottom: 100px">
         <a href="/book/{{ book['id'] }}" style="text-decoration:none; color:white;">
             <img class="card-img-top img-fluid" src="
-            {% if book.volumeInfo.imageLinks.large %}
+            {% if book.volumeInfo.imageLinks and book.volumeInfo.imageLinks.large %}
             {{book.volumeInfo.imageLinks.large}}
-            {% elif book.volumeInfo.imageLinks.medium %}
+            {% elif book.volumeInfo.imageLinks and book.volumeInfo.imageLinks.medium %}
             {{book.volumeInfo.imageLinks.medium}}
-            {% elif book.volumeInfo.imageLinks.thumbnail %}
+            {% elif book.volumeInfo.imageLinks and book.volumeInfo.imageLinks.thumbnail %}
             {{book.volumeInfo.imageLinks.thumbnail}}
-            {% elif book.volumeInfo.imageLinks.smallThumbnail %}
+            {% elif book.volumeInfo.imageLinks and book.volumeInfo.imageLinks.smallThumbnail %}
             {{book.volumeInfo.imageLinks.smallThumbnail}}
             {% endif %}
             " alt="Book poster">
